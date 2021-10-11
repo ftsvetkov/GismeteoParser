@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="GetCities">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetCitiesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCitiesResult" type="tns:ArrayOfCity" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfCity">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="City" nillable="true" type="tns:City" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="City">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Path" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAvailableForecastDates">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="cityId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAvailableForecastDatesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAvailableForecastDatesResult" type="tns:ArrayOfDateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDateTime">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="dateTime" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetCityWeatherForecastOnDate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="cityId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="date" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCityWeatherForecastOnDateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCityWeatherForecastOnDateResult" type="tns:WeatherPoint" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="WeatherPoint">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="CityName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Path" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ForecastDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="ParsedAt" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="MinTempCelsius" type="s:short" />
+          <s:element minOccurs="1" maxOccurs="1" name="MinTempFahrenheit" type="s:short" />
+          <s:element minOccurs="1" maxOccurs="1" name="MaxTempCelsius" type="s:short" />
+          <s:element minOccurs="1" maxOccurs="1" name="MaxTempFahrenheit" type="s:short" />
+          <s:element minOccurs="1" maxOccurs="1" name="MaxWindSpeedMetersPerSecond" type="s:unsignedShort" />
+          <s:element minOccurs="1" maxOccurs="1" name="MaxWindSpeedMilesPerHour" type="s:unsignedShort" />
+          <s:element minOccurs="1" maxOccurs="1" name="MaxWindSpeedKilometersPerHour" type="s:unsignedShort" />
+          <s:element minOccurs="1" maxOccurs="1" name="PrecipitationAmount" nillable="true" type="s:float" />
+          <s:element minOccurs="0" maxOccurs="1" name="Summary" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetCitiesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCities" />
+  </wsdl:message>
+  <wsdl:message name="GetCitiesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCitiesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAvailableForecastDatesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAvailableForecastDates" />
+  </wsdl:message>
+  <wsdl:message name="GetAvailableForecastDatesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAvailableForecastDatesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCityWeatherForecastOnDateSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCityWeatherForecastOnDate" />
+  </wsdl:message>
+  <wsdl:message name="GetCityWeatherForecastOnDateSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCityWeatherForecastOnDateResponse" />
+  </wsdl:message>
+  <wsdl:portType name="WeatherForecastSoap">
+    <wsdl:operation name="GetCities">
+      <wsdl:input message="tns:GetCitiesSoapIn" />
+      <wsdl:output message="tns:GetCitiesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAvailableForecastDates">
+      <wsdl:input message="tns:GetAvailableForecastDatesSoapIn" />
+      <wsdl:output message="tns:GetAvailableForecastDatesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCityWeatherForecastOnDate">
+      <wsdl:input message="tns:GetCityWeatherForecastOnDateSoapIn" />
+      <wsdl:output message="tns:GetCityWeatherForecastOnDateSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="WeatherForecastSoap" type="tns:WeatherForecastSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetCities">
+      <soap:operation soapAction="http://tempuri.org/GetCities" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAvailableForecastDates">
+      <soap:operation soapAction="http://tempuri.org/GetAvailableForecastDates" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCityWeatherForecastOnDate">
+      <soap:operation soapAction="http://tempuri.org/GetCityWeatherForecastOnDate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WeatherForecastSoap12" type="tns:WeatherForecastSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetCities">
+      <soap12:operation soapAction="http://tempuri.org/GetCities" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAvailableForecastDates">
+      <soap12:operation soapAction="http://tempuri.org/GetAvailableForecastDates" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCityWeatherForecastOnDate">
+      <soap12:operation soapAction="http://tempuri.org/GetCityWeatherForecastOnDate" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="WeatherForecast">
+    <wsdl:port name="WeatherForecastSoap" binding="tns:WeatherForecastSoap">
+      <soap:address location="http://localhost:50635/WeatherForecast.asmx" />
+    </wsdl:port>
+    <wsdl:port name="WeatherForecastSoap12" binding="tns:WeatherForecastSoap12">
+      <soap12:address location="http://localhost:50635/WeatherForecast.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
