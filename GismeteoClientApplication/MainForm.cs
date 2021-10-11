@@ -90,8 +90,8 @@ namespace GismeteoClientApplication
             sb.AppendLine();
             sb.AppendFormat("Maximum wind speed in miles per hour: {0}", weatherPoint.MaxWindSpeedMilesPerHour);
             sb.AppendLine();
-            sb.AppendLine();
             sb.AppendFormat("Maximum wind speed in kilometers per hour: {0}", weatherPoint.MaxWindSpeedKilometersPerHour);
+            sb.AppendLine();
             sb.AppendLine();
             sb.AppendFormat("Precipitation amount in millimeters: {0}", weatherPoint.PrecipitationAmount);
             sb.AppendLine();
