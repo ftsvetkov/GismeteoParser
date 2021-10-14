@@ -28,7 +28,7 @@ namespace GismeteoParser
             string server = "localhost")
         {
             connection = 
-                new MySqlConnection($"Server={server};User ID={userId};Password={password};Database={databaseName}");
+                new MySqlConnection($"Server={server};User ID={userId};Password={password};Database={databaseName}; Charset=utf8mb4;");
 
             InitDatabase(password, userId, databaseName, server);
         }
@@ -324,7 +324,7 @@ namespace GismeteoParser
             $@"SELECT SCHEMA_NAME
                FROM INFORMATION_SCHEMA.SCHEMATA
                WHERE SCHEMA_NAME = '{databaseName}'";
-            var createDatabaseQuery = $"CREATE DATABASE IF NOT EXISTS `{databaseName}` DEFAULT CHARSET cp1251;";
+            var createDatabaseQuery = $"CREATE DATABASE IF NOT EXISTS `{databaseName}` DEFAULT CHARSET utf8mb4;";
 
             var connectionString =
                 $"Server={server};User ID={userId};Password={password}";
@@ -355,7 +355,7 @@ namespace GismeteoParser
                 `path` varchar(255) NOT NULL,
                 PRIMARY KEY (`city_id`),
                 UNIQUE KEY `path_UNIQUE` (`path`)
-              ) ENGINE=InnoDB DEFAULT CHARSET=cp1251;";
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
             var command = new MySqlCommand(query, Connection);
             command.ExecuteNonQuery();
@@ -381,7 +381,7 @@ namespace GismeteoParser
                 PRIMARY KEY (`weather_point_id`),
                 KEY `weather_point_city_id_city_city_id_idx` (`city_id`),
                 CONSTRAINT `weather_point_city_id_city_city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`city_id`) ON DELETE CASCADE ON UPDATE CASCADE
-              ) ENGINE=InnoDB DEFAULT CHARSET=cp1251;";
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
             var command = new MySqlCommand(query, Connection);
             command.ExecuteNonQuery();
