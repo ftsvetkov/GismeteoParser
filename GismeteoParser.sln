@@ -13,6 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GismeteoWebService", "Gisme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GismeteoClientApplication", "GismeteoClientApplication\GismeteoClientApplication.csproj", "{7BC4B85B-6B8C-439D-ACDD-881E6C9DF0E9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{776ADD63-ECE3-4AFE-A748-89CB32EBF25B}"
+	ProjectSection(SolutionItems) = preProject
+		gismeteo_weather_forecast.sql = gismeteo_weather_forecast.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
