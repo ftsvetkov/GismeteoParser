@@ -6,13 +6,24 @@ using System.Web;
 
 namespace GismeteoParser
 {
+    public enum ParserMode
+    {
+        TenDays = 10,
+        TwoWeeks = 14,
+    }
+
     public class Parser
     {
         const string GISMETEO_SITE_URL = "https://www.gismeteo.ru/";
         const string GISMETEO_SITE_TEN_DAYS_PATH = "10-days/";
+        const string GISMETEO_SITE_TWO_WEEKS_PATH = "2-weeks/";
 
-        public Parser()
-        { }
+        private readonly ParserMode mode;
+
+        public Parser(ParserMode mode = ParserMode.TenDays)
+        {
+            this.mode = mode;
+        }
 
         public Dictionary<string, List<WeatherPoint>> Parse()
         {
@@ -40,14 +51,18 @@ namespace GismeteoParser
 
         public Dictionary<string, string> ParseCitiesEntryPoints()
         {
-            ServicePointManager.SecurityProtocol =
-                SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+            // Во время написания программы в какой-то момент были проблемы
+            // с получением данных с сайта, которые решилсь подключением старых протоколов.
+            //ServicePointManager.SecurityProtocol |=
+            //    SecurityProtocolType.Tls | 
+            //    SecurityProtocolType.Tls11 | 
+            //    SecurityProtocolType.Tls12 | 
+            //    SecurityProtocolType.Ssl3;
 
             var htmlWeb = new HtmlWeb();
             var htmlDocument = htmlWeb.Load(GISMETEO_SITE_URL);
 
-            var aTagNodes = htmlDocument.DocumentNode.SelectNodes(
-                "//html/body/section[2]/div[2]/div/div[1]/div/noscript/a");
+            var aTagNodes = htmlDocument.DocumentNode.SelectNodes("//noscript[@id='noscript']/a");
 
             if (aTagNodes != null)
             {
@@ -74,11 +89,13 @@ namespace GismeteoParser
             if (!String.IsNullOrEmpty(path))
             {
                 var cityWeatherPoints = new List<WeatherPoint>();
-                var parseUrl = GISMETEO_SITE_URL.TrimEnd('/') + path + GISMETEO_SITE_TEN_DAYS_PATH;
+                var parseUrl = GISMETEO_SITE_URL.TrimEnd('/') + path + 
+                    (mode == ParserMode.TenDays ? GISMETEO_SITE_TEN_DAYS_PATH : GISMETEO_SITE_TWO_WEEKS_PATH);
                 var htmlWeb = new HtmlWeb();
                 var htmlDocument = htmlWeb.Load(parseUrl);
 
-                for (var i = 0; i < 10; i++)
+                var modeValue = (int)mode;
+                for (var i = 0; i < modeValue; i++)
                 {
                     cityWeatherPoints.Add(new WeatherPoint()
                     {
@@ -101,26 +118,29 @@ namespace GismeteoParser
 
         private void ParseTemperatures(HtmlDocument htmlDocument, List<WeatherPoint> cityWeatherPoints)
         {
-            //var temperaturesDivNodes = htmlDocument.DocumentNode.SelectNodes(
-            //    "/html/body/section/div[2]/div/div[1]/div/div[2]/div[1]/div/div/div[1]/div/div[3]/div/div/div/div");
-            var temperaturesDivNodes = htmlDocument.DocumentNode.SelectNodes(
-                "//div[@class = 'templine w_temperature']/div/div/div");
+            var temperaturesDivNode = htmlDocument.DocumentNode.SelectSingleNode(
+                "//div[@class='templine w_temperature']/div[@class='chart chart__temperature']/div[@class='values']");
 
-            for (int i = 0; i < 10; i++)
+            var modeValue = (int)mode;
+            for (var i = 0; i < modeValue; i++)
             {
-                var maxTempCelsiusSpanNode = temperaturesDivNodes[i].SelectSingleNode("div[1]/span[1]");
+                var maxTempCelsiusSpanNode = temperaturesDivNode.SelectSingleNode(
+                    $"div[{i + 1}]/div[@class='maxt']/span[@class='unit unit_temperature_c']");
                 cityWeatherPoints[i].MaxTempCelsius = 
                     sbyte.Parse(Parser.HtmlDecode(maxTempCelsiusSpanNode.InnerText));
 
-                var maxTempFahrenheitSpanNode = temperaturesDivNodes[i].SelectSingleNode("div[1]/span[2]");
+                var maxTempFahrenheitSpanNode = temperaturesDivNode.SelectSingleNode(
+                    $"div[{i + 1}]/div[@class='maxt']/span[@class='unit unit_temperature_f']");
                 cityWeatherPoints[i].MaxTempFahrenheit = 
                     sbyte.Parse(Parser.HtmlDecode(maxTempFahrenheitSpanNode.InnerText));
 
-                var minTempCelsiusSpanNode = temperaturesDivNodes[i].SelectSingleNode("div[2]/span[1]");
+                var minTempCelsiusSpanNode = temperaturesDivNode.SelectSingleNode(
+                    $"div[{i + 1}]/div[@class='mint']/span[@class='unit unit_temperature_c']");
                 cityWeatherPoints[i].MinTempCelsius = 
                     sbyte.Parse(Parser.HtmlDecode(minTempCelsiusSpanNode.InnerText));
 
-                var minTempFahrenheitSpanNode = temperaturesDivNodes[i].SelectSingleNode("div[2]/span[2]");
+                var minTempFahrenheitSpanNode = temperaturesDivNode.SelectSingleNode(
+                    $"div[{i + 1}]/div[@class='mint']/span[@class='unit unit_temperature_f']");
                 cityWeatherPoints[i].MinTempFahrenheit = 
                     sbyte.Parse(Parser.HtmlDecode(minTempFahrenheitSpanNode.InnerText));
             }
@@ -128,21 +148,25 @@ namespace GismeteoParser
 
         private void ParseWindSpeeds(HtmlDocument htmlDocument, List<WeatherPoint> cityWeatherPoints)
         {
-            var windSpeedsDivNodes = htmlDocument.DocumentNode.SelectNodes(
-                "/html/body/section/div[2]/div/div[1]/div/div[2]/div[1]/div/div/div[1]/div/div[5]/div");
+            var windSpeedsDivNode = htmlDocument.DocumentNode.SelectSingleNode(
+                "//div[@class='widget__row widget__row_table widget__row_wind-or-gust']");
 
-            for (int i = 0; i < 10; i++)
+            var modeValue = (int)mode;
+            for (var i = 0; i < modeValue; i++)
             {
-                var maxWindSpeedMetersPerSecondSpanNode = windSpeedsDivNodes[i].SelectSingleNode("div/div/span[1]");
-                cityWeatherPoints[i].MaxWindSpeedMetersPerSecond = 
+                var maxWindSpeedMetersPerSecondSpanNode =
+                    windSpeedsDivNode.SelectSingleNode($"div[@data-item='{i}']/div/div/span[@class='unit unit_wind_m_s']");
+                cityWeatherPoints[i].MaxWindSpeedMetersPerSecond =
                     ushort.Parse(Parser.HtmlDecode(maxWindSpeedMetersPerSecondSpanNode.InnerText));
 
-                var maxWindSpeedMilesPerHourSpanNode = windSpeedsDivNodes[i].SelectSingleNode("div/div/span[2]");
-                cityWeatherPoints[i].MaxWindSpeedMilesPerHour = 
+                var maxWindSpeedMilesPerHourSpanNode =
+                    windSpeedsDivNode.SelectSingleNode($"div[@data-item='{i}']/div/div/span[@class='unit unit_wind_mi_h']");
+                cityWeatherPoints[i].MaxWindSpeedMilesPerHour =
                     ushort.Parse(Parser.HtmlDecode(maxWindSpeedMilesPerHourSpanNode.InnerText));
 
-                var maxWindSpeedKilometersPerHourSpanNode = windSpeedsDivNodes[i].SelectSingleNode("div/div/span[3]");
-                cityWeatherPoints[i].MaxWindSpeedKilometersPerHour = 
+                var maxWindSpeedKilometersPerHourSpanNode =
+                    windSpeedsDivNode.SelectSingleNode($"div[@data-item='{i}']/div/div/span[@class='unit unit_wind_km_h']");
+                cityWeatherPoints[i].MaxWindSpeedKilometersPerHour =
                     ushort.Parse(Parser.HtmlDecode(maxWindSpeedKilometersPerHourSpanNode.InnerText));
             }
         }
@@ -150,18 +174,19 @@ namespace GismeteoParser
         private void ParsePrecipitationAmounts(HtmlDocument htmlDocument, List<WeatherPoint> cityWeatherPoints)
         {
             var precipitationAmountDivNode = htmlDocument.DocumentNode.SelectSingleNode(
-                "//div[@class = 'widget__row widget__row_table widget__row_precipitation']");
+                "//div[@class='widget__row widget__row_table widget__row_precipitation']");
 
-            for (int i = 0; i < 10; i++)
+            var modeValue = (int)mode;
+            for (var i = 0; i < modeValue; i++)
             {
-                if (precipitationAmountDivNode.SelectSingleNode("div[@class = 'w_prec__without']") != null)
+                if (precipitationAmountDivNode.SelectSingleNode("div[@class='w_prec__without']") != null)
                 {
                     cityWeatherPoints[i].PrecipitationAmount = null;
                 }
                 else
                 {
                     var precipitationAmountValueDivNode =
-                        precipitationAmountDivNode.SelectSingleNode($"div[{i + 1}]/div/div[@class = 'w_prec__value']");
+                        precipitationAmountDivNode.SelectSingleNode($"div[{i + 1}]/div/div[@class='w_prec__value']");
                     cityWeatherPoints[i].PrecipitationAmount =
                         float.Parse(Parser.HtmlDecode(precipitationAmountValueDivNode.InnerText.Replace(',', '.')));
                 }
@@ -170,12 +195,14 @@ namespace GismeteoParser
 
         private void ParseSummary(HtmlDocument htmlDocument, List<WeatherPoint> cityWeatherPoints)
         {
-            var summaryDivNodes = htmlDocument.DocumentNode.SelectNodes(
-                "/html/body/section/div[2]/div/div[1]/div/div[2]/div[1]/div/div/div[1]/div/div[2]/div");
+            var summaryDivNode = htmlDocument.DocumentNode.SelectSingleNode(
+                "//div[@class='widget__row widget__row_table widget__row_icon']");
 
-            for (int i = 0; i < 10; i++)
+            var modeValue = (int)mode;
+            for (var i = 0; i < modeValue; i++)
             {
-                var summarySpanNode = summaryDivNodes[i].SelectSingleNode("div/span");
+                var summarySpanNode = 
+                    summaryDivNode.SelectSingleNode($"div[@data-item='{i}']/div/span[@class='tooltip']");
                 cityWeatherPoints[i].Summary =
                     Parser.HtmlDecode(summarySpanNode.GetAttributeValue("data-text", ""));
             }
